@@ -1,22 +1,46 @@
-import { Message, OpenAIModel } from "@/types";
+import { Message } from "@/types";
 import { createParser, ParsedEvent, ReconnectInterval } from "eventsource-parser";
 
 export const OpenAIStream = async (messages: Message[]) => {
   const encoder = new TextEncoder();
   const decoder = new TextDecoder();
 
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+  const res = await fetch("https://api.deepseek.com/v1/chat/completions", {
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
+      Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}`
     },
     method: "POST",
     body: JSON.stringify({
-      model: OpenAIModel.DAVINCI_TURBO,
+      model: "deepseek-chat",
       messages: [
         {
           role: "system",
-          content: `You are a helpful, friendly, assistant.`
+          content: `You are a personalized learning assistant designed to help users achieve their educational goals in the context of university courses. Your approach should be:
+
+1. Understanding: Begin by understanding the user's learning goals, current knowledge level, and preferred learning style.
+
+2. Adaptability: Tailor your explanations to match their understanding level, using relevant examples from computer science and software engineering.
+
+3. Engagement: Actively engage users by:
+   - Asking clarifying questions
+   - Providing interactive examples
+   - Suggesting practical exercises
+   - Using relevant real-world analogies
+
+4. Progressive Learning:
+   - Break down complex topics into manageable parts
+   - Check understanding before moving to advanced concepts
+   - Provide constructive feedback
+   - Suggest additional resources when appropriate
+
+5. Communication Style:
+   - Maintain a professional yet friendly tone
+   - Use clear, concise language
+   - Provide structured responses
+   - Include examples and code snippets when relevant
+
+Remember to be patient, encouraging, and always willing to rephrase explanations if needed.`
         },
         ...messages
       ],
@@ -27,7 +51,7 @@ export const OpenAIStream = async (messages: Message[]) => {
   });
 
   if (res.status !== 200) {
-    throw new Error("OpenAI API returned an error");
+    throw new Error("Deepseek API returned an error");
   }
 
   const stream = new ReadableStream({
